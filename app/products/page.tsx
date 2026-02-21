@@ -8,6 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ShoppingCart, LogOut } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
+import MainHeader from '@/components/MainHeader'
+
+
+
 interface Product {
   id: string
   name: string
@@ -28,32 +32,45 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+
+  const [data, setData] = useState<any>({})
   const router = useRouter()
+
+
   // const supabase = createClient()
 
   useEffect(() => {
-    const fetchData = async () => {
-      // try {
-      //   const { data: { user } } = await supabase.auth.getUser()
-      //   setUser(user)
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(products => {
+        // Group by category
+        const grouped: any = {}
 
-      //   // Fetch categories
-      //   const { data: catData } = await supabase.from('categories').select('*')
-      //   if (catData) setCategories(catData)
+        products.forEach((p: any) => {
+          const cat = p.category_name || "Others"
+          if (!grouped[cat]) grouped[cat] = []
+          grouped[cat].push(p)
+        })
 
-      //   // Fetch products
-      //   const { data: prodData } = await supabase.from('products').select('*').eq('is_active', true)
-      //   if (prodData) setProducts(prodData)
-      // } catch (error) {
-      //   console.error('Error fetching data:', error)
-      // } finally {
-      //   setLoading(false)
-      // }
-    }
-
-    fetchData()
+        setData(grouped)
+        setLoading(false)
+      })
   }, [])
 
+
+   const getDiscount = (mrp: any, discount: any) => {
+  const MRP = Number(mrp)
+  const DIS = Number(discount)
+
+  if (!DIS || DIS <= 0 || DIS >= MRP) return null
+
+  const percent = ((MRP - DIS) / MRP) * 100
+  const rounded = Math.floor(percent / 5) * 5
+
+  if (rounded <= 0) return null
+
+  return rounded
+}
   const handleAddToCart = async (product: Product) => {
     if (!user) {
       router.push('/auth/login')
@@ -85,110 +102,102 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <nav className="border-b border-green-100 bg-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-green-700">
-            Virasat Organics
-          </Link>
-          <div className="flex gap-4 items-center">
-            {user ? (
-              <>
-                <span className="text-sm text-gray-600">Welcome, {user.email}</span>
-                <Link href="/profile">
-                  <Button variant="outline" size="sm">Profile</Button>
-                </Link>
-                <Link href="/cart-page">
-                  <Button variant="outline" size="sm">
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Cart
-                  </Button>
-                </Link>
-                <Button onClick={handleLogout} variant="ghost" size="sm">
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login">
-                  <Button variant="outline">Login</Button>
-                </Link>
-                <Link href="/auth/signup">
-                  <Button className="bg-green-600 hover:bg-green-700">Sign Up</Button>
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+    <>
+      <MainHeader/>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-4xl font-bold mb-8">Shop Products</h1>
 
-        {/* Categories */}
-        <div className="mb-8 flex gap-2 flex-wrap">
-          <button
-            onClick={() => setSelectedCategory('')}
-            className={`px-4 py-2 rounded-lg border-2 font-medium transition ${
-              selectedCategory === ''
-                ? 'bg-green-600 text-white border-green-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:border-green-600'
-            }`}
-          >
-            All Products
-          </button>
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-2 rounded-lg border-2 font-medium transition ${
-                selectedCategory === cat.id
-                  ? 'bg-green-600 text-white border-green-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-green-600'
-              }`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
+         <div className="max-w-7xl mx-auto px-6 space-y-12">
 
-        {/* Products Grid */}
-        {loading ? (
-          <div className="text-center py-12">Loading products...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredProducts.map(product => (
-              <Card key={product.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="text-lg">{product.name}</CardTitle>
-                  <CardDescription className="text-sm">{product.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="text-2xl font-bold text-green-600">₹{product.price}</p>
-                      <p className="text-xs text-gray-500">Stock: {product.stock_quantity}</p>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={() => handleAddToCart(product)}
-                    className="w-full mt-4 bg-green-600 hover:bg-green-700"
-                    disabled={product.stock_quantity === 0}
+        {Object.keys(data).map(category => (
+          <div key={category}>
+
+            {/* Category Title */}
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">
+                {category}
+              </h2>
+              <a href={`/products?category=${category}`} className="text-sm text-green-700">
+                View all
+              </a>
+            </div>
+
+            {/* Products Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+              {data[category].map((p: any) => {
+                const discountPercent = getDiscount(p.price, p.discount_price)
+
+                return (
+                  <div
+                    key={p.id}
+                   
+  onClick={() => {
+    console.log("Product clicked:", p.id)
+    router.push(`/products/${p.id}`)
+  }}
+                    className="bg-white rounded-lg border hover:shadow-lg transition relative p-4"
                   >
-                    {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
 
-        {filteredProducts.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">No products found in this category</p>
+                    {/* Badge */}
+                    <div className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                      {discountPercent
+                        ? `${discountPercent}% OFF`
+                        : "SALE"}
+                    </div>
+
+                    {/* Image */}
+                    <div className="h-44 flex items-center justify-center mb-3">
+                      <img
+  src={p.image_url && p.image_url.trim() !== "" 
+    ? p.image_url 
+    : "/uploads/1771253858561-logo.jpeg"}
+  alt={p.title}
+  className="max-h-full object-contain"
+/>
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2">
+                      {p.title}
+                    </h3>
+
+                    {/* Price */}
+                <div className="mb-3 flex items-center gap-2">
+  {p.discount_price && Number(p.discount_price) < Number(p.price) ? (
+    <>
+      <span className="text-green-700 font-bold text-lg">
+        ₹{p.discount_price}
+      </span>
+      <span className="text-gray-400 line-through text-sm">
+        ₹{p.price}
+      </span>
+    </>
+  ) : (
+    <span className="text-green-700 font-bold text-lg">
+      ₹{p.price}
+    </span>
+  )}
+</div>
+
+
+
+                    {/* Add to Cart */}
+                    <button className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 text-sm">
+                      Add to Cart
+                    </button>
+                  </div>
+                )
+              })}
+
+            </div>
           </div>
-        )}
+        ))}
+
       </div>
+      </div>
+      </>
     </div>
   )
 }

@@ -1,11 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([])
   const [name, setName] = useState("")
-  const [image, setImage] = useState("")
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [editingId, setEditingId] = useState<number | null>(null)
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const loadCategories = async () => {
     const res = await fetch("/api/admin/categories")
@@ -17,20 +20,60 @@ export default function CategoriesPage() {
     loadCategories()
   }, [])
 
-  const addCategory = async () => {
-    if (!name) return alert("Enter category name")
+  const uploadImage = async () => {
+    if (!imageFile) return null
 
-    await fetch("/api/admin/categories", {
+    const formData = new FormData()
+    formData.append("type", "category")
+    formData.append("file", imageFile)
+
+    const res = await fetch("/api/admin/upload", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        image_url: image,
-      }),
+      body: formData,
     })
 
+    const data = await res.json()
+
+    if (!res.ok) {
+      alert(data.error || "Upload failed")
+      return null
+    }
+
+    return data.url  // ✅ FIXED
+  }
+
+  const addOrUpdateCategory = async () => {
+    if (!name) return alert("Enter category name")
+
+    let image_url = null
+
+    if (imageFile) {
+      image_url = await uploadImage()
+    }
+
+    if (editingId) {
+      await fetch(`/api/admin/categories/${editingId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, image_url }),
+      })
+      setEditingId(null)
+    } else {
+      await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, image_url }),
+      })
+    }
+
+    // Reset everything
     setName("")
-    setImage("")
+    setImageFile(null)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""  // ✅ FILE RESET FIX
+    }
+
     loadCategories()
   }
 
@@ -44,29 +87,38 @@ export default function CategoriesPage() {
     loadCategories()
   }
 
+  const editCategory = (category: any) => {
+    setEditingId(category.id)
+    setName(category.name)
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold mb-6">Category Management</h1>
 
-      {/* Add Category */}
-      <div className="bg-white p-4 rounded shadow mb-6 flex gap-4">
+      {/* Add / Edit */}
+      <div className="bg-white p-4 rounded shadow mb-6 flex gap-4 items-center">
         <input
           className="border p-2 flex-1"
           placeholder="Category name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+
         <input
-          className="border p-2 flex-1"
-          placeholder="Image URL (optional)"
-          value={image}
-          onChange={(e) => setImage(e.target.value)}
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            setImageFile(e.target.files ? e.target.files[0] : null)
+          }
         />
+
         <button
-          onClick={addCategory}
+          onClick={addOrUpdateCategory}
           className="bg-green-600 text-white px-4 rounded"
         >
-          Add
+          {editingId ? "Update" : "Add"}
         </button>
       </div>
 
@@ -90,11 +142,18 @@ export default function CategoriesPage() {
                   {c.image_url && (
                     <img
                       src={c.image_url}
-                      className="w-12 h-12 object-cover"
+                      className="w-14 h-14 object-cover rounded"
                     />
                   )}
                 </td>
-                <td className="p-3">
+                <td className="p-3 space-x-2">
+                  <button
+                    onClick={() => editCategory(c)}
+                    className="bg-blue-500 text-white px-3 py-1 rounded"
+                  >
+                    Edit
+                  </button>
+
                   <button
                     onClick={() => deleteCategory(c.id)}
                     className="bg-red-500 text-white px-3 py-1 rounded"

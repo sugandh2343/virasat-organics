@@ -2,8 +2,16 @@
 
 import { useEffect, useState } from "react"
 
+
+import { useRouter } from "next/navigation"
+
+
+// import MainHeader from "../components/MainHeader"
+
 export default function HomeProducts() {
   const [data, setData] = useState<any>({})
+  const router = useRouter()
+
 
   useEffect(() => {
     fetch("/api/products")
@@ -39,7 +47,12 @@ export default function HomeProducts() {
 
 
   return (
+    
+
+    
     <div className="bg-[#f7f7f7] py-10">
+
+      
       <div className="max-w-7xl mx-auto px-6 space-y-12">
 
         {Object.keys(data).map(category => (
@@ -56,76 +69,82 @@ export default function HomeProducts() {
             </div>
 
             {/* Products Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+           {/* Products Horizontal Scroll */}
+<div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
 
-              {data[category].map((p: any) => {
-                const discountPercent = getDiscount(p.price, p.discount_price)
+  {data[category].map((p: any) => {
+    const discountPercent = getDiscount(p.price, p.discount_price)
 
-                return (
-                  <div
-                    key={p.id}
-                    className="bg-white rounded-lg border hover:shadow-lg transition relative p-4"
-                  >
+    return (
+      <div
+        key={p.id}
+        onClick={() => router.push(`/products/${p.id}`)}
+        className="min-w-[220px] max-w-[220px] bg-white rounded-xl border hover:shadow-xl transition relative p-4 cursor-pointer"
+      >
 
-                    {/* Badge */}
-                    <div className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                      {discountPercent
-                        ? `${discountPercent}% OFF`
-                        : "SALE"}
-                    </div>
+        {/* Badge */}
+        {discountPercent && (
+          <div className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 rounded">
+            {discountPercent}% OFF
+          </div>
+        )}
 
-                    {/* Image */}
-                    <div className="h-44 flex items-center justify-center mb-3">
-                      {p.image_url ? (
-                        <img
-                          src={p.image_url}
-                          className="max-h-full object-contain"
-                        />
-                      ) : (
-                        <div className="text-gray-400 text-sm">
-                          No Image
-                        </div>
-                      )}
-                    </div>
+        {/* Image */}
+        <div className="h-44 flex items-center justify-center mb-3">
+          <img
+            src={
+              p.image_url && p.image_url.trim() !== ""
+                ? p.image_url
+                : "/uploads/1771253858561-logo.jpeg"
+            }
+            alt={p.title}
+            className="max-h-full object-contain"
+          />
+        </div>
 
-                    {/* Title */}
-                    <h3 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2">
-                      {p.title}
-                    </h3>
+        {/* Title */}
+        <h3 className="text-sm font-medium text-gray-800 mb-1 line-clamp-2">
+          {p.title}
+        </h3>
 
-                    {/* Price */}
-                <div className="mb-3 flex items-center gap-2">
-  {p.discount_price && Number(p.discount_price) < Number(p.price) ? (
-    <>
-      <span className="text-green-700 font-bold text-lg">
-        ₹{p.discount_price}
-      </span>
-      <span className="text-gray-400 line-through text-sm">
-        ₹{p.price}
-      </span>
-    </>
-  ) : (
-    <span className="text-green-700 font-bold text-lg">
-      ₹{p.price}
-    </span>
-  )}
+        {/* Price */}
+        <div className="mb-3 flex items-center gap-2">
+          {p.discount_price &&
+          Number(p.discount_price) < Number(p.price) ? (
+            <>
+              <span className="text-green-700 font-bold text-lg">
+                ₹{p.discount_price}
+              </span>
+              <span className="text-gray-400 line-through text-sm">
+                ₹{p.price}
+              </span>
+            </>
+          ) : (
+            <span className="text-green-700 font-bold text-lg">
+              ₹{p.price}
+            </span>
+          )}
+        </div>
+
+        {/* Add to Cart */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            console.log("Add to cart:", p.id)
+          }}
+          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm"
+        >
+          Add to Cart
+        </button>
+      </div>
+    )
+  })}
 </div>
-
-
-
-                    {/* Add to Cart */}
-                    <button className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 text-sm">
-                      Add to Cart
-                    </button>
-                  </div>
-                )
-              })}
-
-            </div>
           </div>
         ))}
 
       </div>
     </div>
+  
   )
 }

@@ -1,4 +1,4 @@
-import pool from "@/lib/db"
+import {pool} from "@/lib/db"
 
 export async function GET() {
   const result = await pool.query(
@@ -8,14 +8,24 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const { name, image_url } = await req.json()
+  try {
+    const { name, image_url } = await req.json()
 
-  const result = await pool.query(
-    "INSERT INTO categories (name, image_url) VALUES ($1, $2) RETURNING *",
-    [name, image_url]
-  )
+    if (!name) {
+      return Response.json({ error: "Name required" }, { status: 400 })
+    }
 
-  console.log("Adding Cattegory",Response.json(result));
+    const result = await pool.query(
+      "INSERT INTO categories (name, image_url) VALUES ($1, $2) RETURNING *",
+      [name, image_url || null]
+    )
 
-  return Response.json(result.rows[0])
+    console.log("Category Added:", result.rows[0])
+
+    return Response.json(result.rows[0])
+
+  } catch (error) {
+    console.error(error)
+    return Response.json({ error: "Failed to add category" }, { status: 500 })
+  }
 }

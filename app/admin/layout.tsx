@@ -16,6 +16,7 @@ export default function AdminLayout({
     { name: "Products", path: "/admin/products" },
     { name: "Orders", path: "/admin/orders" },
     { name: "Users", path: "/admin/users" },
+    { name: "Distributors", path: "/admin/distributor" },
   ]
 
   return (

@@ -12,7 +12,42 @@ import HeroSlider from "@/components/HeroSlider"
 import NavMenu from "@/components/NavMenu"
 import HomeProducts from '@/components/HomeProducts'
 
+import CategoryRibbon from '@/components/CategoryRibbon'
+import { useState } from 'react'
+
 export default function HomePage() {
+
+
+
+  const[showDistributorForm,setShowDistributorForm]= useState(false);
+
+  const handleDistributorSubmit = async (e: any) => {
+  e.preventDefault()
+
+  const formData = new FormData(e.target)
+
+  const payload = {
+    name: formData.get("name"),
+    business_name: formData.get("business_name"),
+    mobile: formData.get("mobile"),
+    email: formData.get("email"),
+    city: formData.get("city"),
+    message: formData.get("message"),
+  }
+
+
+
+  console.log("Distributor data before being sent",JSON.stringify(payload))
+
+  await fetch("/api/distributor", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  })
+
+  alert("Thank you! Our team will contact you soon.")
+  setShowDistributorForm(false)
+}
   return (
     <main className="bg-white">
       {/* Navigation */}
@@ -20,35 +55,139 @@ export default function HomePage() {
      <MainHeader />
       <NavMenu />
       <HeroSlider />
+      <CategoryRibbon />
       <HomeProducts/>
     </main>
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-          <div className="inline-block px-4 py-2 bg-green-100 rounded-full text-green-700">
-            <span className="text-sm font-medium">100% Organic & Eco-Friendly</span>
-          </div>
-          
-          <h2 className="text-5xl sm:text-6xl font-bold text-gray-900">
-            Pure Organic, <span className="text-green-600">Delivered Fresh</span>
-          </h2>
-          
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Discover premium organic groceries and eco-friendly products sourced directly from trusted farms across India.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/products" className="inline-block px-8 py-3 bg-green-600 text-white rounded hover:bg-green-700">
-              Shop Now
-            </Link>
-            <Link href="#features" className="inline-block px-8 py-3 border border-gray-300 rounded hover:border-gray-400">
-              Learn More
-            </Link>
-          </div>
-        </div>
-      </section>
+      <section className="bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 py-24 relative overflow-hidden">
+  <div className="max-w-6xl mx-auto px-6 text-center space-y-8">
 
+    {/* Tag */}
+    <div className="inline-block px-5 py-2 bg-green-100 rounded-full text-green-700 font-medium">
+      Limited Early Bird Opportunity – 30 Days Only
+    </div>
+
+    {/* Heading */}
+    <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight">
+      Become an Early Distributor of{" "}
+      <span className="text-green-600">Virasat Organics</span>
+    </h2>
+
+    {/* Description */}
+    <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+      Manufacturing begins soon. We are onboarding exclusive distributors 
+      city-wise before launch. Secure your territory and enjoy priority 
+      margins, branding support, and launch visibility.
+    </p>
+
+    {/* Benefits */}
+    <div className="grid md:grid-cols-3 gap-6 mt-10 text-left">
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <h4 className="font-semibold text-gray-800 mb-2">Higher Margins</h4>
+        <p className="text-sm text-gray-600">
+          Early partners receive premium margin slabs and bonus incentives.
+        </p>
+      </div>
+
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <h4 className="font-semibold text-gray-800 mb-2">City Exclusivity</h4>
+        <p className="text-sm text-gray-600">
+          Limited distributor per region for long-term growth protection.
+        </p>
+      </div>
+
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <h4 className="font-semibold text-gray-800 mb-2">Marketing Support</h4>
+        <p className="text-sm text-gray-600">
+          Brand launch campaigns, POS materials, and digital promotion.
+        </p>
+      </div>
+    </div>
+
+    {/* CTA */}
+    <div className="mt-10">
+      <button
+        onClick={() => setShowDistributorForm(true)}
+        className="px-10 py-4 bg-green-600 text-white rounded-lg text-lg hover:bg-green-700 transition shadow-lg"
+      >
+        Request Distributorship Now
+      </button>
+    </div>
+
+  </div>
+</section>
+
+{showDistributorForm && (
+  <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="bg-white w-full max-w-lg rounded-2xl p-8 relative shadow-2xl">
+
+      <button
+        onClick={() => setShowDistributorForm(false)}
+        className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+      >
+        ✕
+      </button>
+
+      <h3 className="text-2xl font-semibold mb-6 text-gray-800">
+        Distributor Enquiry
+      </h3>
+
+      <form onSubmit={handleDistributorSubmit} className="space-y-4">
+
+  <input
+    name="name"
+    required
+    placeholder="Full Name"
+    className="w-full border p-3 rounded"
+  />
+
+  <input
+    name="business_name"
+    required
+    placeholder="Business Name"
+    className="w-full border p-3 rounded"
+  />
+
+  <input
+    name="mobile"
+    required
+    type="tel"
+    placeholder="Mobile Number"
+    className="w-full border p-3 rounded"
+  />
+
+  <input
+    name="email"
+    required
+    type="email"
+    placeholder="Email Address"
+    className="w-full border p-3 rounded"
+  />
+
+  <input
+    name="city"
+    required
+    placeholder="City / Region"
+    className="w-full border p-3 rounded"
+  />
+
+  <textarea
+    name="message"
+    placeholder="Tell us about your distribution experience"
+    className="w-full border p-3 rounded"
+  />
+
+  <button
+    type="submit"
+    className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700"
+  >
+    Submit Request
+  </button>
+</form>
+    </div>
+  </div>
+)}
       {/* Features */}
       <section id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <h2 className="text-4xl font-bold text-center mb-12">Why Choose Virasat Organics?</h2>
@@ -69,28 +208,7 @@ export default function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="bg-gray-50 py-16 sm:py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center mb-12">Shop by Category</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-             
-              { name: 'Grains & Pulses', emoji: '🌾' },
-            
-              { name: 'Spices', emoji: '🧂' },
-              
-            ].map((category) => (
-              <Link key={category.name} href={`/products?category=${category.name.toLowerCase()}`}>
-                <div className="border border-gray-200 rounded p-6 hover:shadow-lg transition-shadow text-center cursor-pointer">
-                  <div className="text-5xl mb-3">{category.emoji}</div>
-                  <p className="font-semibold text-lg">{category.name}</p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+     
 
       {/* CTA */}
       <section className="bg-green-600 py-16 text-white text-center">
