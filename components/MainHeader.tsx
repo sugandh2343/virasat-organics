@@ -62,39 +62,56 @@ export default function MainHeader() {
   return (
     <>
      <header className="bg-white shadow-sm border-b relative z-40">
+
+       <div className="bg-green-700 text-white text-sm py-2 overflow-hidden whitespace-nowrap">
+    <div className="animate-marquee">
+      🚀 We are launching soon! For details and distributorship contact: 8181017427 &nbsp;&nbsp;&nbsp;&nbsp;
+      🚀 We are launching soon! For details and distributorship contact: 8181017427 &nbsp;&nbsp;&nbsp;&nbsp;
+    </div>
+  </div>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <Image src={logo} alt="Virasat Organics" width={50} height={50} className="rounded-full" />
-            <div>
-              <h1 className="text-xl font-bold text-green-700">Virasat</h1>
-              <p className="text-xs text-gray-500">Organics</p>
-            </div>
-          </Link>
+           <div className="hidden md:flex items-center gap-6 text-gray-700 text-sm font-medium">
+        <Link href="/" className="hover:text-green-600">Home</Link>
+        <Link href="/shop" className="hover:text-green-600">Shop</Link>
+        <Link href="/categories" className="hover:text-green-600">Categories</Link>
+        <Link href="/about" className="hover:text-green-600">About</Link>
+        <Link href="/contact" className="hover:text-green-600">Contact</Link>
+      </div>
 
-          {/* Search */}
-          <div className="hidden md:flex flex-1 mx-10">
-            <div className="flex w-full">
-              <input
-                type="text"
-                placeholder="Search organic products..."
-                className="w-full px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-green-600"
-              />
-              <button className="bg-green-600 px-4 rounded-r-md text-white hover:bg-green-700">
-                <Search size={18} />
-              </button>
-            </div>
-          </div>
+       <Link href="/" className="flex items-center justify-center">
+        <Image
+          src={logo}
+          alt="Virasat Organics"
+          width={80}
+          height={80}
+          className="rounded-full"
+        />
+      </Link>
+  <div className="flex items-center gap-6 text-gray-700 relative" ref={dropdownRef}>
+        
+        {/* SEARCH BUTTON */}
+        <Link href="/search">
+          <Search className="cursor-pointer hover:text-green-600" />
+        </Link>
 
-          {/* Icons */}
-          <div className="flex items-center gap-6 text-gray-700 relative" ref={dropdownRef}>
-            <button onClick={handleUserClick}>
-              <User className="cursor-pointer hover:text-green-600" />
-            </button>
+        {/* USER */}
+        <button onClick={handleUserClick}>
+          <User className="cursor-pointer hover:text-green-600" />
+        </button>
 
-            <ShoppingCart className="cursor-pointer hover:text-green-600" />
+        {/* CART */}
+        <button onClick={handleUserClick}>
+          <ShoppingCart className="cursor-pointer hover:text-green-600" />
+        </button>
+        </div>
 
+          
+           
+
+         
+     
             {/* Profile Dropdown */}
            {user && open && (
   <div className="absolute right-0 top-full mt-3 w-80 
@@ -189,7 +206,7 @@ z-[999] max-h-[85vh] overflow-y-auto">
     </div>
   </div>
 )}
-          </div>
+          
 
         </div>
       </header>

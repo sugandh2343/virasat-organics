@@ -78,14 +78,15 @@ export default function HomeProducts() {
     return (
       <div
         key={p.id}
-        onClick={() => router.push(`/products/${p.id}`)}
+        // onClick={() => router.push(`/products/${p.id}`)}
         className="min-w-[220px] max-w-[220px] bg-white rounded-xl border hover:shadow-xl transition relative p-4 cursor-pointer"
       >
 
         {/* Badge */}
         {discountPercent && (
           <div className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 rounded">
-            {discountPercent}% OFF
+            {/* {discountPercent}% OFF */}
+            Coming Soon
           </div>
         )}
 
@@ -109,7 +110,7 @@ export default function HomeProducts() {
 
         {/* Price */}
         <div className="mb-3 flex items-center gap-2">
-          {p.discount_price &&
+          {/* {p.discount_price &&
           Number(p.discount_price) < Number(p.price) ? (
             <>
               <span className="text-green-700 font-bold text-lg">
@@ -123,7 +124,7 @@ export default function HomeProducts() {
             <span className="text-green-700 font-bold text-lg">
               ₹{p.price}
             </span>
-          )}
+          )} */}
         </div>
 
         {/* Add to Cart */}
@@ -132,7 +133,7 @@ export default function HomeProducts() {
             e.stopPropagation()
             console.log("Add to cart:", p.id)
           }}
-          className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm"
+          className="hidden w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 text-sm"
         >
           Add to Cart
         </button>

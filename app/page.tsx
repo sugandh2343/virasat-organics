@@ -53,10 +53,9 @@ export default function HomePage() {
       {/* Navigation */}
       <main>
      <MainHeader />
-      <NavMenu />
+      {/* <NavMenu /> */}
       <HeroSlider />
-      <CategoryRibbon />
-      <HomeProducts/>
+      
     </main>
 
       {/* Hero Section */}
@@ -117,6 +116,9 @@ export default function HomePage() {
 
   </div>
 </section>
+
+<CategoryRibbon />
+      <HomeProducts/>
 
 {showDistributorForm && (
   <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">

@@ -135,16 +135,17 @@ export default function ProductsPage() {
                    
   onClick={() => {
     console.log("Product clicked:", p.id)
-    router.push(`/products/${p.id}`)
+    // router.push(`/products/${p.id}`)
   }}
                     className="bg-white rounded-lg border hover:shadow-lg transition relative p-4"
                   >
 
                     {/* Badge */}
                     <div className="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 rounded">
-                      {discountPercent
+                      {/* {discountPercent
                         ? `${discountPercent}% OFF`
-                        : "SALE"}
+                        : "SALE"} */}
+                        Coming Soon
                     </div>
 
                     {/* Image */}
@@ -164,7 +165,7 @@ export default function ProductsPage() {
                     </h3>
 
                     {/* Price */}
-                <div className="mb-3 flex items-center gap-2">
+                <div className="hidden mb-3 flex items-center gap-2">
   {p.discount_price && Number(p.discount_price) < Number(p.price) ? (
     <>
       <span className="text-green-700 font-bold text-lg">

@@ -1,148 +1,198 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-
+import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
+import Image from "next/image"
 import MainHeader from "@/components/MainHeader"
 
+import { Swiper, SwiperSlide } from "swiper/react"
+import { Navigation, Thumbs } from "swiper/modules"
+import "swiper/css"
+import "swiper/css/navigation"
+import "swiper/css/thumbs"
 
+export default function ProductDetails() {
+  const { id } = useParams()
+  const [product, setProduct] = useState<any>(null)
+  const [activeTab, setActiveTab] = useState("description")
+  const [selectedImage, setSelectedImage] = useState("")
 
-export default function ProductPage() {
-  const { id } = useParams();
-  const [product, setProduct]: any = useState(null);
-  const [qty, setQty] = useState(1);
+  const [thumbsSwiper, setThumbsSwiper] = useState<any>(null)
 
   useEffect(() => {
     fetch(`/api/products/${id}`)
       .then(res => res.json())
-      .then(data => setProduct(data));
-  }, [id]);
+      .then(data => {
+        setProduct(data)
+        setSelectedImage(data?.image_url)
+      })
+  }, [id])
 
-  if (!product) return <div className="p-10">Loading...</div>;
-
-  const discountPercent =
-    product.discount_price
-      ? Math.round(
-          ((product.price - product.discount_price) / product.price) * 100 / 5
-        ) * 5
-      : null;
-
-  const benefits = product.key_benefits
-    ? product.key_benefits.split("|")
-    : [];
+  if (!product) return <div className="p-10">Loading...</div>
 
   return (
-    <div >
-
+    <div className="bg-white">
       <>
-<MainHeader/>
 
-<div className="max-w-screen mx-auto p-6 grid md:grid-cols-2 gap-10">
+      <MainHeader/>
+      
 
+      {/* Top Section */}
+      <div className="max-w-7xl mx-auto px-6 py-12 grid md:grid-cols-2 gap-12">
 
-      {/* LEFT - IMAGE */}
-      <div>
-        <img
-          src={product.image_url || "/placeholder.png"}
-          className="w-full rounded-lg border"
-        />
-      </div>
+        {/* LEFT IMAGE SECTION */}
+       <div>
+  <Swiper
+    modules={[Navigation, Thumbs]}
+    navigation
+    thumbs={{ swiper: thumbsSwiper }}
+    className="rounded-lg border"
+  >
+    {product.images?.map((image_url: string, i: number) => (
+      <SwiperSlide key={i}>
+        <img src={image_url} className="w-full h-[420px] object-contain" />
+      </SwiperSlide>
+    ))}
+  </Swiper>
 
-      {/* RIGHT - DETAILS */}
-      <div>
-        <h1 className="text-2xl font-bold mb-2">{product.title}</h1>
+  <Swiper
+    onSwiper={setThumbsSwiper}
+    slidesPerView={4}
+    spaceBetween={10}
+    className="mt-4"
+  >
+    {product.images?.map((image_url: string, i: number) => (
+      <SwiperSlide key={i}>
+        <img src={image_url} className="h-20 w-full object-cover border rounded cursor-pointer" />
+      </SwiperSlide>
+    ))}
+  </Swiper>
+</div>
+        {/* RIGHT INFO SECTION */}
+        <div>
+          <h1 className="text-3xl font-bold mb-3">
+            {product.title}
+          </h1>
 
-        {/* Price */}
-        <div className="mb-4">
-          <span className="text-2xl text-green-600 font-semibold mr-3">
-            ₹{product.discount_price || product.price}
+          <span className="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm mb-4">
+            In Stock
           </span>
 
-          {product.discount_price && (
-            <>
-              <span className="line-through text-gray-500 mr-2">
+          {/* Price */}
+          <div className="mb-4">
+            {product.discount_price ? (
+              <>
+                <span className="text-2xl text-green-700 font-bold">
+                  ₹{product.discount_price}
+                </span>
+                <span className="text-gray-400 line-through ml-2">
+                  ₹{product.price}
+                </span>
+              </>
+            ) : (
+              <span className="text-2xl text-green-700 font-bold">
                 ₹{product.price}
               </span>
-              <span className="bg-green-100 text-green-700 px-2 py-1 text-sm rounded">
-                {discountPercent}% OFF
-              </span>
-            </>
-          )}
-        </div>
+            )}
+          </div>
 
-        {/* Quantity */}
-        <div className="flex items-center gap-3 mb-5">
-          <button
-            className="px-3 py-1 border"
-            onClick={() => setQty(Math.max(1, qty - 1))}
-          >
-            -
-          </button>
-          <span>{qty}</span>
-          <button
-            className="px-3 py-1 border"
-            onClick={() => setQty(qty + 1)}
-          >
-            +
-          </button>
-        </div>
+          {/* Buttons */}
+          <div className="flex gap-4 mb-6">
+            <button className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700">
+              Buy Now
+            </button>
+            <button className="border border-green-600 text-green-600 px-6 py-3 rounded hover:bg-green-50">
+              Add to Cart
+            </button>
+          </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3 mb-6">
-          <button className="bg-green-600 text-white px-6 py-2 rounded">
-            Add to Cart
-          </button>
-          <button className="border border-green-600 text-green-600 px-6 py-2 rounded">
-            Buy Now
-          </button>
-        </div>
+          {/* Quick Specs */}
+          <div className="border-t pt-6 space-y-2 text-sm">
+            <p><b>Brand:</b> Virasat Organics</p>
+            <p><b>Category:</b> {product.category}</p>
+            <p><b>Form:</b> Whole</p>
+            <p><b>Shelf Life:</b> 12 Months</p>
+          </div>
 
-        {/* Short Description */}
-        <p className="text-gray-700 mb-6">
-          {product.description}
-        </p>
+        </div>
       </div>
 
-      {/* FULL WIDTH SECTION */}
-      <div className="md:col-span-2 mt-8">
+      {/* TABS SECTION */}
+      <div className="max-w-6xl mx-auto px-6 py-10">
 
-        {/* Long Description */}
-        {product.long_description && (
-          <>
-            <h2 className="text-xl font-semibold mb-2">Product Description</h2>
-            <p className="text-gray-700 mb-6 whitespace-pre-line">
-              {product.long_description}
-            </p>
-          </>
+        <div className="flex gap-8 border-b mb-6">
+          {["description", "additional", "reviews"].map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-3 capitalize ${
+                activeTab === tab
+                  ? "border-b-2 border-green-600 text-green-600"
+                  : "text-gray-600"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+
+        {activeTab === "description" && (
+          <div className="space-y-4 text-gray-700">
+            <p>{product.description}</p>
+          </div>
         )}
 
-        {/* Key Benefits */}
-        {benefits.length > 0 && (
-          <>
-            <h2 className="text-xl font-semibold mb-2">Key Benefits</h2>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              {benefits.map((b: string, i: number) => (
-                <li key={i}>{b}</li>
-              ))}
-            </ul>
-          </>
+        {activeTab === "additional" && (
+          <table className="w-full border text-sm">
+            <tbody>
+              <tr className="border">
+                <td className="p-3 font-semibold">Country Of Origin</td>
+                <td className="p-3">India</td>
+              </tr>
+              <tr className="border">
+                <td className="p-3 font-semibold">Shelf Life</td>
+                <td className="p-3">12 Months</td>
+              </tr>
+              <tr className="border">
+                <td className="p-3 font-semibold">Packaging</td>
+                <td className="p-3">Resealable Pack</td>
+              </tr>
+            </tbody>
+          </table>
         )}
 
-        {/* Usage */}
-        {product.usage_instructions && (
-          <>
-            <h2 className="text-xl font-semibold mt-6 mb-2">How to Use</h2>
-            <p className="text-gray-700 whitespace-pre-line">
-              {product.usage_instructions}
-            </p>
-          </>
+        {activeTab === "reviews" && (
+          <div className="text-gray-600">
+            No reviews yet.
+          </div>
         )}
       </div>
-</div>
+
+      {/* BULK ENQUIRY SECTION */}
+      <div className="bg-gray-50 py-16">
+        <div className="max-w-4xl mx-auto px-6">
+          <h2 className="text-2xl font-bold mb-6">
+            Looking for Bulk Purchase?
+          </h2>
+
+          <form className="grid md:grid-cols-2 gap-6">
+            <input placeholder="Full Name" className="border p-3 rounded" />
+            <input placeholder="Email" className="border p-3 rounded" />
+            <input placeholder="Mobile" className="border p-3 rounded" />
+            <input placeholder="Estimated Quantity" className="border p-3 rounded" />
+            <textarea
+              placeholder="Requirement Details"
+              className="border p-3 rounded md:col-span-2"
+            />
+            <button className="bg-green-600 text-white py-3 rounded md:col-span-2">
+              Send Enquiry
+            </button>
+          </form>
+        </div>
+      </div>
 
       </>
-    </div>
 
-    
-  );
+    </div>
+  )
 }
