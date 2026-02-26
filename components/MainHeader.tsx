@@ -65,8 +65,8 @@ export default function MainHeader() {
 
        <div className="bg-green-700 text-white text-sm py-2 overflow-hidden whitespace-nowrap">
     <div className="animate-marquee">
-      🚀 We are launching soon! For details and distributorship contact: 8181017427 &nbsp;&nbsp;&nbsp;&nbsp;
-      🚀 We are launching soon! For details and distributorship contact: 8181017427 &nbsp;&nbsp;&nbsp;&nbsp;
+      🚀 We are launching soon! For details and distributorship contact: +91 7617000499 &nbsp;&nbsp;&nbsp;&nbsp;
+      🚀 We are launching soon! For details and distributorship contact:+91 7617000499 &nbsp;&nbsp;&nbsp;&nbsp;
     </div>
   </div>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
